@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace BloodAlcoholCalculator
 {
@@ -13,6 +14,21 @@ namespace BloodAlcoholCalculator
         {
             InitializeComponent();
             GenderLabel.Text = "Selected Gender: Male";
+            StateChanged += MainWindow_StateChanged; // Handle window state changes
+        }
+
+        private void MainWindow_StateChanged(object sender, EventArgs e)
+        {
+            if (WindowState == WindowState.Maximized)
+            {
+                MaxHeight = SystemParameters.WorkArea.Height;
+                MaxWidth = SystemParameters.WorkArea.Width;
+            }
+            else
+            {
+                MaxHeight = double.PositiveInfinity;
+                MaxWidth = double.PositiveInfinity;
+            }
         }
 
         private void SelectGender(object sender, RoutedEventArgs e)
@@ -35,7 +51,9 @@ namespace BloodAlcoholCalculator
                 double timeHours = double.TryParse(TimeHoursTextBox.Text, out double parsedHours) ? parsedHours : 0;
                 double timeMinutes = double.TryParse(TimeMinutesTextBox.Text, out double parsedMinutes) ? parsedMinutes : 0;
 
-                if (WeightUnitComboBox.SelectedItem == null || DrinkUnitComboBox.SelectedItem == null || DrinkTypeComboBox.SelectedItem == null)
+                if (WeightUnitComboBox.SelectedItem == null ||
+                    DrinkUnitComboBox.SelectedItem == null ||
+                    DrinkTypeComboBox.SelectedItem == null)
                 {
                     MessageBox.Show("Please select all dropdown values.", "Selection Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
@@ -47,7 +65,8 @@ namespace BloodAlcoholCalculator
 
                 bool customAlcohol = double.TryParse(CustomAlcoholTextBox.Text, out double customAlcoholPercentage);
 
-                if (weightUnit == "KG") weight *= 2.20462;
+                if (weightUnit == "KG")
+                    weight *= 2.20462;
 
                 double r = selectedGender == "Male" ? 0.68 : 0.55;
                 double totalTimeElapsed = timeHours + (timeMinutes / 60.0);
@@ -62,13 +81,25 @@ namespace BloodAlcoholCalculator
 
                 double pureAlcoholOz = drinkInOunces * (alcoholPercentage / 100.0);
                 double BAC = ((pureAlcoholOz * 5.14 / (weight * r)) - (0.017 * totalTimeElapsed));
-                BAC = Math.Max(BAC, 0) * 10; // Convert to permille
+                BAC = Math.Max(BAC, 0) * 10;
+                BACResultLabel.Text = $"BAC: {BAC:F3}‰";
 
-                BACResultLabel.Text = $"BAC‰: {BAC:F3}";
-                DrivingStatusLabel.Text = BAC >= 0.49 ? "Not Allowed to Drive" : "Allowed to Drive";
+                if (BAC > 0.49)
+                {
+                    DrivingStatusLabel.Text = "Not Allowed to Drive";
+                    DrivingStatusLabel.Foreground = new SolidColorBrush(Colors.Red);
+                }
+                else
+                {
+                    DrivingStatusLabel.Text = "Allowed to Drive";
+                    DrivingStatusLabel.Foreground = new SolidColorBrush(Colors.LightGreen);
+                }
 
-                double soberTime = BAC / 0.15; // More realistic alcohol burn-off rate (0.015% per hour → 0.15‰ per hour)
-                SoberTimeLabel.Text = $"Estimated Sober Up Time: {soberTime:F1} hours";
+                double soberTime = BAC / 0.15;
+                TimeSpan soberTimeSpan = TimeSpan.FromHours(soberTime);
+                int hours = (int)soberTimeSpan.TotalHours;
+                int minutes = soberTimeSpan.Minutes;
+                SoberTimeLabel.Text = $"Estimated Sober Up Time: {hours}h {minutes}m";
             }
             catch (Exception ex)
             {
@@ -81,7 +112,7 @@ namespace BloodAlcoholCalculator
             return unit switch
             {
                 "ML" => amount * 0.033814,
-                "Glass" => amount * 12.7, // Each Danish glass is 12.7 oz (375ml standard Danish glass)
+                "Glass" => amount * 12.7,
                 "OZ" => amount,
                 _ => 0
             };
@@ -99,6 +130,7 @@ namespace BloodAlcoholCalculator
                 _ => 0
             };
         }
+
         private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ClickCount == 2)
