@@ -7,7 +7,7 @@
         Width="480"
         WindowStyle="None"
         AllowsTransparency="False"
-        ResizeMode="CanResizeWithGrip"
+        ResizeMode="NoResize"
         Background="#1E1E1E">
 
     <shell:WindowChrome.WindowChrome>
@@ -15,7 +15,6 @@
             CaptionHeight="0"
             CornerRadius="0"
             GlassFrameThickness="0"
-            ResizeBorderThickness="5"
             UseAeroCaptionButtons="False"/>
     </shell:WindowChrome.WindowChrome>
 
