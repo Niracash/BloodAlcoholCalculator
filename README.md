@@ -29,7 +29,7 @@ This **magical app** lets you enter your drinking details and tells you **whethe
 ---
 
 ## **🔬 How Does It Work?**  
-![image](https://github.com/user-attachments/assets/885a7807-fff5-4ce2-9505-4087fb1404c8)
+![image](https://github.com/user-attachments/assets/eb7c9b64-0df7-436d-874e-fcfce71c3e70)
 - Enter your **weight**, **gender**, and **drinks consumed**.  
 - The app does **math sorcery** behind the scenes.  
 - You get your **estimated blood alcohol level (‰)** and **a warning if you're over the limit**.  
